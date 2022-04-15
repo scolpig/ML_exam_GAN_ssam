@@ -23,7 +23,7 @@ x = Conv2D(8, (3, 3), activation='relu',
 x = UpSampling2D((2, 2))(x)                     # 16 * 16
 x = Conv2D(16, (3, 3), activation='relu')(x)    # 14 * 14
 x = UpSampling2D((2, 2))(x)                     # 28 * 28
-decoded = Conv2D(1, (3, 3), activation='relu',
+decoded = Conv2D(1, (3, 3), activation='sigmoid',
            padding='same')(x)                   # 28 * 28
 
 
@@ -69,6 +69,8 @@ plt.show()
 plt.plot(fit_hist.history['loss'])
 plt.plot(fit_hist.history['val_loss'])
 plt.show()
+autoencoder.save('./models/autoencoder.h5')
+
 
 
 

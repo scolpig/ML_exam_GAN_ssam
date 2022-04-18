@@ -5,7 +5,7 @@ from tensorflow.keras.datasets import mnist
 from tensorflow.keras.layers import *
 from tensorflow.keras.models import Sequential
 
-OUT_DIR = './DNN_out1'
+OUT_DIR = './CNN_out'
 img_shape = (28, 28, 1)
 epochs = 100000
 batch_size = 128
@@ -20,22 +20,38 @@ X_train = np.expand_dims(X_train, axis=3)
 print(X_train.shape)
 
 generator = Sequential()
-generator.add(Dense(128, input_dim=noise))
+generator.add(Dense(256*7*7, input_dim=noise))
+generator.add(Reshape((7, 7, 256)))
+generator.add(Conv2DTranspose(128, kernel_size=3,
+            strides=2, padding='same'))
+generator.add(BatchNormalization())
 generator.add(LeakyReLU(alpha=0.01))
-generator.add(Dense(784, activation='tanh'))
-generator.add(Reshape(img_shape))
-generator.summary()
+generator.add(Conv2DTranspose(64, kernel_size=3,
+            strides=1, padding='same'))
+generator.add(BatchNormalization())
+generator.add(LeakyReLU(alpha=0.01))
+generator.add(Conv2DTranspose(1, kernel_size=3,
+                    strides=2, padding='same'))
+generator.add(Activation('tanh'))
 
-lrelu = LeakyReLU(alpha=0.01)
 discriminator = Sequential()
-discriminator.add(Flatten(input_shape=img_shape))
-discriminator.add(Dense(128, activation=lrelu))
+discriminator.add(Conv2D(32, kernel_size=3,
+        strides=2, padding='same', input_shape=img_shape))
+discriminator.add(LeakyReLU(alpha=0.01))
+discriminator.add(Conv2D(64, kernel_size=3,
+        strides=2, padding='same'))
+discriminator.add(LeakyReLU(alpha=0.01))
+discriminator.add(Conv2D(128, kernel_size=3,
+        strides=2, padding='same'))
+discriminator.add(LeakyReLU(alpha=0.01))
+discriminator.add(Flatten())
 discriminator.add(Dense(1, activation='sigmoid'))
 discriminator.summary()
 
 discriminator.compile(loss='binary_crossentropy',
                       optimizer='adam', metrics=['accuracy'])
-#discriminator.trainable=False
+discriminator.trainable=False
+
 gan_model = Sequential()
 gan_model.add(generator)
 gan_model.add(discriminator)
@@ -58,9 +74,9 @@ for epoch in range(epochs):
 
     d_loss, d_acc = 0.5 * np.add(d_hist_real, d_hist_fake)
     discriminator.trainable=False
-    if epoch % 2 == 0:
-        z = np.random.normal(0, 1, (batch_size, noise))
-        gan_hist = gan_model.train_on_batch(z, real)
+
+    z = np.random.normal(0, 1, (batch_size, noise))
+    gan_hist = gan_model.train_on_batch(z, real)
 
     if epoch % sample_interval == 0:
         print('%d [D loss: %f, acc.: %.2f%%] [G loss: %f]'%(

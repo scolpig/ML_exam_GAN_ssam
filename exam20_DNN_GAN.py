@@ -45,7 +45,7 @@ gan_model.compile(loss='binary_crossentropy', optimizer='adam')
 real = np.ones((batch_size, 1))
 
 fake = np.zeros((batch_size, 1))
-
+discriminator.trainable=False
 for epoch in range(epochs):
     idx = np.random.randint(0, X_train.shape[0], batch_size)
     real_imgs = X_train[idx]

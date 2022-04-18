@@ -4,7 +4,7 @@ from tensorflow.keras.models import *
 from tensorflow.keras.layers import *
 from tensorflow.keras.datasets import mnist
 
-from exam19_3_autoencoder import conv_x_test_nosiy
+
 
 input_img = Input(shape=(28, 28, 1))
 x = Conv2D(16, (3, 3), activation='relu',

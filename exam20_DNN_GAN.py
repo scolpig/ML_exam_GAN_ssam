@@ -35,7 +35,7 @@ discriminator.summary()
 
 discriminator.compile(loss='binary_crossentropy',
                       optimizer='adam', metrics=['accuracy'])
-
+discriminator.trainable=False
 gan_model = Sequential()
 gan_model.add(generator)
 gan_model.add(discriminator)
@@ -45,7 +45,7 @@ gan_model.compile(loss='binary_crossentropy', optimizer='adam')
 real = np.ones((batch_size, 1))
 
 fake = np.zeros((batch_size, 1))
-discriminator.trainable=False
+
 for epoch in range(epochs):
     idx = np.random.randint(0, X_train.shape[0], batch_size)
     real_imgs = X_train[idx]
@@ -58,9 +58,9 @@ for epoch in range(epochs):
 
     d_loss, d_acc = 0.5 * np.add(d_hist_real, d_hist_fake)
     discriminator.trainable=False
-
-    z = np.random.normal(0, 1, (batch_size, noise))
-    gan_hist = gan_model.train_on_batch(z, real)
+    if epoch % 2 == 0:
+        z = np.random.normal(0, 1, (batch_size, noise))
+        gan_hist = gan_model.train_on_batch(z, real)
 
     if epoch % sample_interval == 0:
         print('%d [D loss: %f, acc.: %.2f%%] [G loss: %f]'%(

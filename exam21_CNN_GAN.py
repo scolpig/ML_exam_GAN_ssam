@@ -96,6 +96,8 @@ for epoch in range(epochs):
         path = os.path.join(OUT_DIR, 'img-{}'.format(epoch+1))
         plt.savefig(path)
         plt.close()
+        generator.save(
+            './generator.h5')
 
 
 
